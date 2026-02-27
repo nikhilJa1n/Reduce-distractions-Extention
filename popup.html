@@ -134,6 +134,142 @@
             margin-bottom: 0;
         }
 
+        /* Analytics & Pro */
+        .pro-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--glass-border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .color-grid {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .color-opt {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .color-opt:hover {
+            transform: scale(1.1);
+        }
+
+        .color-opt.active {
+            border-color: white;
+        }
+
+        .support-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #ffdd00;
+            color: #000000 !important;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .pro-badge {
+            background: var(--accent);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .license-field {
+            margin-top: 15px;
+            padding: 12px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+        }
+
+        .license-input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .license-input-group input {
+            flex: 1;
+            font-size: 12px;
+            padding: 8px;
+            text-transform: uppercase;
+        }
+
+        .license-input-group button {
+            width: auto;
+            padding: 8px 12px;
+            font-size: 11px;
+        }
+
+        .pro-content {
+            position: relative;
+        }
+
+        .pro-content.locked::after {
+            content: "🔒 Unlock Pro to change color";
+            position: absolute;
+            inset: -5px;
+            background: rgba(10, 10, 20, 0.7);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            border-radius: 8px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .pro-content.locked {
+            opacity: 0.6;
+        }
+
         .status {
             margin-top: 12px;
             font-size: 12px;
@@ -151,6 +287,20 @@
 
 <body>
     <h2>Settings</h2>
+
+    <div class="field">
+        <label>Focus Analytics</label>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span id="statMoments" class="stat-value">0</span>
+                <span class="stat-label">Moments</span>
+            </div>
+            <div class="stat-card">
+                <span id="statDays" class="stat-value">1</span>
+                <span class="stat-label">Streak</span>
+            </div>
+        </div>
+    </div>
 
     <div class="field">
         <label for="pauseTime">Mandatory Pause Duration</label>
@@ -181,11 +331,42 @@
 
     <div class="field" id="siteListContainer">
         <label for="siteList">Site List (one domain per line)</label>
-        <textarea id="siteList" rows="4" placeholder="youtube.com&#10;facebook.com"></textarea>
+        <textarea id="siteList" rows="3" placeholder="youtube.com&#10;facebook.com"></textarea>
     </div>
 
-    <button id="saveBtn">Save Settings</button>
-    <div id="status" class="status">Settings saved!</div>
+    <div class="pro-section">
+        <div class="field">
+            <label>Theme Color <span class="pro-badge">PRO</span></label>
+            <div id="proContent" class="pro-content locked">
+                <div class="color-grid">
+                    <div class="color-opt active" data-color="#a78bfa" style="background: #a78bfa;"></div>
+                    <div class="color-opt" data-color="#34d399" style="background: #34d399;"></div>
+                    <div class="color-opt" data-color="#60a5fa" style="background: #60a5fa;"></div>
+                    <div class="color-opt" data-color="#fb923c" style="background: #fb923c;"></div>
+                    <div class="color-opt" data-color="#f472b6" style="background: #f472b6;"></div>
+                </div>
+            </div>
+        </div>
+
+        <button id="saveBtn">Save Settings</button>
+        <div id="status" class="status">Settings saved!</div>
+
+        <div class="license-field" id="licenseField">
+            <label style="color: var(--text); font-size: 12px;">Unlock Pro Version</label>
+            <p style="font-size: 10px; color: var(--text-dim); margin: 4px 0 8px 0;">
+                Don't have a key? <a href="https://your-website.com/buy" target="_blank"
+                    style="color: var(--accent); text-decoration: none; font-weight: 500;">Get one here →</a>
+            </p>
+            <div class="license-input-group">
+                <input type="text" id="licenseKey" placeholder="Enter License Key">
+                <button id="verifyKeyBtn">Unlock</button>
+            </div>
+        </div>
+
+        <a href="https://www.buymeacoffee.com" target="_blank" class="support-btn">
+            <span>☕</span> Support Development
+        </a>
+    </div>
 
     <script src="popup.js"></script>
 </body>

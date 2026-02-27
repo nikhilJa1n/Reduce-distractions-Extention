@@ -166,8 +166,14 @@
             chrome.storage.sync.get({
                 pauseDuration: 0,
                 pauseUnit: 'seconds',
-                autoContinue: false
+                autoContinue: false,
+                accentColor: '#a78bfa',
+                isPro: false
             }, (items) => {
+                // Apply custom theme color ONLY if Pro
+                const activeColor = items.isPro ? items.accentColor : '#a78bfa';
+                document.documentElement.style.setProperty('--rd-accent', activeColor);
+
                 let seconds = parseInt(items.pauseDuration) || 0;
                 if (items.pauseUnit === 'minutes') {
                     seconds *= 60;
@@ -199,6 +205,12 @@
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
                     if (hint) hint.style.opacity = '1';
+
+                    // Increment mindful moments on success
+                    chrome.storage.sync.get({ totalMoments: 0 }, (data) => {
+                        chrome.storage.sync.set({ totalMoments: data.totalMoments + 1 });
+                    });
+
                     if (autoContinue) {
                         dismiss();
                     }

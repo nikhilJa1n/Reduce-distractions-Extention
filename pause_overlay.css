@@ -62,7 +62,8 @@
 #rd-pause-overlay .rd-ring {
     position: absolute !important;
     border-radius: 50% !important;
-    border: 1.5px solid rgba(167, 139, 250, 0.35) !important;
+    border: 1.5px solid var(--rd-accent) !important;
+    opacity: 0.35 !important;
     animation: rdBreathe 4s ease-in-out infinite alternate !important;
 }
 
@@ -81,8 +82,8 @@
     width: 84px !important;
     height: 84px !important;
     border-radius: 50% !important;
-    background: radial-gradient(circle at 35% 35%, rgba(139, 92, 246, 0.9), rgba(109, 40, 217, 0.7)) !important;
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.5) !important;
+    background: radial-gradient(circle at 35% 35%, var(--rd-accent), rgba(109, 40, 217, 0.7)) !important;
+    box-shadow: 0 0 40px var(--rd-accent) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -107,12 +108,12 @@
 @keyframes rdBreatheInner {
     0% {
         transform: scale(0.9) !important;
-        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3) !important;
+        box-shadow: 0 0 20px var(--rd-accent) !important;
     }
 
     100% {
         transform: scale(1.1) !important;
-        box-shadow: 0 0 60px rgba(139, 92, 246, 0.6) !important;
+        box-shadow: 0 0 60px var(--rd-accent) !important;
     }
 }
 
@@ -136,22 +137,23 @@
 
 #rd-pause-overlay #rd-continue-btn {
     padding: 13px 34px !important;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(109, 40, 217, 0.8)) !important;
-    border: 1px solid rgba(167, 139, 250, 0.4) !important;
+    background: var(--rd-accent) !important;
+    opacity: 0.8 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 50px !important;
     color: #fff !important;
     font-family: inherit !important;
     font-size: 14px !important;
     font-weight: 500 !important;
     cursor: pointer !important;
-    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35) !important;
+    box-shadow: 0 4px 20px var(--rd-accent) !important;
     transition: transform 0.2s, box-shadow 0.2s !important;
     letter-spacing: 0.3px !important;
 }
 
 #rd-pause-overlay #rd-continue-btn:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5) !important;
+    box-shadow: 0 8px 32px var(--rd-accent) !important;
 }
 
 #rd-pause-overlay .rd-hint {
@@ -199,7 +201,7 @@
     margin-top: -12px !important;
     font-size: 14px !important;
     font-weight: 500 !important;
-    color: #a78bfa !important;
+    color: var(--rd-accent) !important;
     letter-spacing: 0.3px !important;
 }
 
