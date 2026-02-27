@@ -14,6 +14,24 @@
     const isDirectNav = navType === 'navigate' && !document.referrer;
     if (!isReload && !isDirectNav) return;
 
+    const QUOTES = [
+        { text: "Almost everything will work again if you unplug it for a few minutes — including you.", author: "Anne Lamott" },
+        { text: "Be where you are; otherwise you will miss your life.", author: "Buddha" },
+        { text: "The present moment is the only moment available to us, and it is the door to all moments.", author: "Thich Nhat Hanh" },
+        { text: "Within you, there is a stillness and a sanctuary to which you can retreat at any time.", author: "Hermann Hesse" },
+        { text: "Slow down and everything you are chasing will come around and catch you.", author: "John De Paola" },
+        { text: "You can't stop the waves, but you can learn to surf.", author: "Jon Kabat-Zinn" },
+        { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+        { text: "Breathe. Let go. And remind yourself that this very moment is the only one you know you have for sure.", author: "Oprah Winfrey" },
+        { text: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", author: "Buddha" },
+        { text: "The quieter you become, the more you are able to hear.", author: "Rumi" },
+        { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+        { text: "Rest is not idleness, and to lie sometimes on the grass under trees on a summer's day is by no means a waste of time.", author: "John Lubbock" },
+        { text: "Almost everything — all external expectations, all pride, all fear of embarrassment or failure — these things just fall away in the face of death, leaving only what is truly important.", author: "Steve Jobs" },
+        { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle" },
+        { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+    ];
+
     // Check filters before injecting
     chrome.storage.sync.get({
         filterMode: 'always',
@@ -43,6 +61,8 @@
     });
 
     function initOverlay() {
+        const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+
         // Build and inject the overlay
         const overlay = document.createElement('div');
         overlay.id = 'rd-pause-overlay';
@@ -60,6 +80,11 @@
     <div class="rd-message">
       <strong>Pause for a moment</strong>
       Take a breath before continuing.
+    </div>
+
+    <div class="rd-quote-wrap">
+      <div class="rd-quote-text">"${quote.text}"</div>
+      <div class="rd-quote-author">— ${quote.author}</div>
     </div>
 
     <div id="rd-timer-overlay" class="rd-timer-overlay rd-hidden">Wait 5s to continue</div>
