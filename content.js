@@ -76,9 +76,13 @@
         function attachOverlay() {
             if (document.body) {
                 document.body.appendChild(overlay);
+                silencePage();
+                window.rdMediaInterval = setInterval(silencePage, 500);
             } else {
                 document.addEventListener('DOMContentLoaded', () => {
                     document.body.appendChild(overlay);
+                    silencePage();
+                    window.rdMediaInterval = setInterval(silencePage, 500);
                 });
             }
         }
@@ -99,9 +103,19 @@
             }, 300);
         }, 4000);
 
+        function silencePage() {
+            const media = document.querySelectorAll('video, audio');
+            media.forEach(m => {
+                try {
+                    if (!m.paused) m.pause();
+                } catch (e) { }
+            });
+        }
+
         // Dismiss function
         function dismiss() {
             if (isTimerRunning) return;
+            if (window.rdMediaInterval) clearInterval(window.rdMediaInterval);
             clearInterval(labelTimer);
             overlay.style.transition = 'opacity 0.4s ease';
             overlay.style.opacity = '0';
