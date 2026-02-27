@@ -14,11 +14,40 @@
     const isDirectNav = navType === 'navigate' && !document.referrer;
     if (!isReload && !isDirectNav) return;
 
-    // Build and inject the overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'rd-pause-overlay';
+    // Check filters before injecting
+    chrome.storage.sync.get({
+        filterMode: 'always',
+        siteList: ''
+    }, (items) => {
+        const mode = items.filterMode;
+        if (mode === 'always') {
+            initOverlay();
+            return;
+        }
 
-    overlay.innerHTML = `
+        const currentHost = window.location.hostname;
+        const list = items.siteList.split('\n')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+
+        const isMatched = list.some(domain => {
+            // Simple match: domain exactly or ends with .domain
+            return currentHost === domain || currentHost.endsWith('.' + domain);
+        });
+
+        if (mode === 'blacklist' && isMatched) {
+            initOverlay();
+        } else if (mode === 'whitelist' && !isMatched) {
+            initOverlay();
+        }
+    });
+
+    function initOverlay() {
+        // Build and inject the overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'rd-pause-overlay';
+
+        overlay.innerHTML = `
     <div class="rd-orb rd-orb1"></div>
     <div class="rd-orb rd-orb2"></div>
 
@@ -38,113 +67,114 @@
     <p class="rd-hint" id="rd-enter-hint">or press Enter</p>
   `;
 
-    // Block scrolling while overlay is visible
-    document.documentElement.style.overflow = 'hidden';
+        // Block scrolling while overlay is visible
+        document.documentElement.style.overflow = 'hidden';
 
-    let isTimerRunning = false;
+        let isTimerRunning = false;
 
-    // Append as early as possible; if body not ready yet, wait for it
-    function attachOverlay() {
-        if (document.body) {
-            document.body.appendChild(overlay);
-        } else {
-            document.addEventListener('DOMContentLoaded', () => {
+        // Append as early as possible; if body not ready yet, wait for it
+        function attachOverlay() {
+            if (document.body) {
                 document.body.appendChild(overlay);
-            });
+            } else {
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.body.appendChild(overlay);
+                });
+            }
         }
-    }
-    attachOverlay();
+        attachOverlay();
 
-    // Breathing label cycle
-    const breathLabels = ['Breathe In', 'Hold', 'Breathe Out', 'Hold'];
-    let idx = 0;
-    const labelEl = () => document.getElementById('rd-breath-label');
-    const labelTimer = setInterval(() => {
-        const el = labelEl();
-        if (!el) return;
-        el.style.opacity = '0';
-        setTimeout(() => {
-            idx = (idx + 1) % breathLabels.length;
-            el.textContent = breathLabels[idx];
-            el.style.opacity = '1';
-        }, 300);
-    }, 4000);
+        // Breathing label cycle
+        const breathLabels = ['Breathe In', 'Hold', 'Breathe Out', 'Hold'];
+        let idx = 0;
+        const labelEl = () => document.getElementById('rd-breath-label');
+        const labelTimer = setInterval(() => {
+            const el = labelEl();
+            if (!el) return;
+            el.style.opacity = '0';
+            setTimeout(() => {
+                idx = (idx + 1) % breathLabels.length;
+                el.textContent = breathLabels[idx];
+                el.style.opacity = '1';
+            }, 300);
+        }, 4000);
 
-    // Dismiss function
-    function dismiss() {
-        if (isTimerRunning) return;
-        clearInterval(labelTimer);
-        overlay.style.transition = 'opacity 0.4s ease';
-        overlay.style.opacity = '0';
-        document.documentElement.style.overflow = '';
-        setTimeout(() => {
-            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-        }, 420);
-    }
+        // Dismiss function
+        function dismiss() {
+            if (isTimerRunning) return;
+            clearInterval(labelTimer);
+            overlay.style.transition = 'opacity 0.4s ease';
+            overlay.style.opacity = '0';
+            document.documentElement.style.overflow = '';
+            setTimeout(() => {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 420);
+        }
 
-    // Add event listeners after overlay is in DOM
-    function bindEvents() {
-        const btn = document.getElementById('rd-continue-btn');
-        if (btn) btn.addEventListener('click', dismiss);
-        document.addEventListener('keydown', function onKey(e) {
-            if (e.key === 'Enter' || e.key === 'Escape') {
-                if (isTimerRunning) return;
-                document.removeEventListener('keydown', onKey);
-                dismiss();
-            }
-        });
-
-        // Load Settings & Start Timer
-        chrome.storage.sync.get({
-            pauseDuration: 0,
-            pauseUnit: 'seconds',
-            autoContinue: false
-        }, (items) => {
-            let seconds = parseInt(items.pauseDuration) || 0;
-            if (items.pauseUnit === 'minutes') {
-                seconds *= 60;
-            }
-            if (seconds > 0) {
-                runOverlayTimer(seconds, items.autoContinue);
-            }
-        });
-    }
-
-    function runOverlayTimer(seconds, autoContinue) {
-        const timerEl = document.getElementById('rd-timer-overlay');
-        const btn = document.getElementById('rd-continue-btn');
-        const hint = document.getElementById('rd-enter-hint');
-        if (!timerEl || !btn) return;
-
-        isTimerRunning = true;
-        timerEl.classList.remove('rd-hidden');
-        btn.style.opacity = '0.3';
-        btn.style.cursor = 'not-allowed';
-        if (hint) hint.style.opacity = '0.3';
-
-        let remaining = seconds;
-        const update = () => {
-            timerEl.textContent = `Wait ${remaining}s to continue`;
-            if (remaining <= 0) {
-                isTimerRunning = false;
-                timerEl.classList.add('rd-hidden');
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-                if (hint) hint.style.opacity = '1';
-                if (autoContinue) {
+        // Add event listeners after overlay is in DOM
+        function bindEvents() {
+            const btn = document.getElementById('rd-continue-btn');
+            if (btn) btn.addEventListener('click', dismiss);
+            document.addEventListener('keydown', function onKey(e) {
+                if (e.key === 'Enter' || e.key === 'Escape') {
+                    if (isTimerRunning) return;
+                    document.removeEventListener('keydown', onKey);
                     dismiss();
                 }
-            } else {
-                remaining--;
-                setTimeout(update, 1000);
-            }
-        };
-        update();
-    }
+            });
 
-    if (document.body) {
-        bindEvents();
-    } else {
-        document.addEventListener('DOMContentLoaded', bindEvents);
+            // Load Settings & Start Timer
+            chrome.storage.sync.get({
+                pauseDuration: 0,
+                pauseUnit: 'seconds',
+                autoContinue: false
+            }, (items) => {
+                let seconds = parseInt(items.pauseDuration) || 0;
+                if (items.pauseUnit === 'minutes') {
+                    seconds *= 60;
+                }
+                if (seconds > 0) {
+                    runOverlayTimer(seconds, items.autoContinue);
+                }
+            });
+        }
+
+        function runOverlayTimer(seconds, autoContinue) {
+            const timerEl = document.getElementById('rd-timer-overlay');
+            const btn = document.getElementById('rd-continue-btn');
+            const hint = document.getElementById('rd-enter-hint');
+            if (!timerEl || !btn) return;
+
+            isTimerRunning = true;
+            timerEl.classList.remove('rd-hidden');
+            btn.style.opacity = '0.3';
+            btn.style.cursor = 'not-allowed';
+            if (hint) hint.style.opacity = '0.3';
+
+            let remaining = seconds;
+            const update = () => {
+                timerEl.textContent = `Wait ${remaining}s to continue`;
+                if (remaining <= 0) {
+                    isTimerRunning = false;
+                    timerEl.classList.add('rd-hidden');
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    if (hint) hint.style.opacity = '1';
+                    if (autoContinue) {
+                        dismiss();
+                    }
+                } else {
+                    remaining--;
+                    setTimeout(update, 1000);
+                }
+            };
+            update();
+        }
+
+        if (document.body) {
+            bindEvents();
+        } else {
+            document.addEventListener('DOMContentLoaded', bindEvents);
+        }
     }
 })();

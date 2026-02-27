@@ -25,6 +25,7 @@
             background: var(--bg);
             font-family: 'Inter', sans-serif;
             color: var(--text);
+            color-scheme: dark;
         }
 
         h2 {
@@ -53,7 +54,8 @@
         }
 
         input[type="number"],
-        select {
+        select,
+        textarea {
             background: var(--glass);
             border: 1px solid var(--glass-border);
             border-radius: 8px;
@@ -63,18 +65,29 @@
             font-size: 14px;
             outline: none;
             transition: border-color 0.2s;
-        }
-
-        input[type="number"] {
-            width: 100%;
+            box-sizing: border-box;
         }
 
         select {
             cursor: pointer;
+            width: 100%;
+        }
+
+        /* Fix for the white dropdown background */
+        select option {
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        textarea {
+            width: 100%;
+            font-size: 13px;
+            resize: vertical;
         }
 
         input:focus,
-        select:focus {
+        select:focus,
+        textarea:focus {
             border-color: var(--accent);
         }
 
@@ -155,6 +168,20 @@
             <input type="checkbox" id="autoContinue">
             <span class="checkbox-label">Auto-continue when timer ends</span>
         </label>
+    </div>
+
+    <div class="field">
+        <label for="filterMode">Pause Mode</label>
+        <select id="filterMode">
+            <option value="always">Always Pause</option>
+            <option value="blacklist">Pause on specific sites</option>
+            <option value="whitelist">Pause except on specific sites</option>
+        </select>
+    </div>
+
+    <div class="field" id="siteListContainer">
+        <label for="siteList">Site List (one domain per line)</label>
+        <textarea id="siteList" rows="4" placeholder="youtube.com&#10;facebook.com"></textarea>
     </div>
 
     <button id="saveBtn">Save Settings</button>
