@@ -99,7 +99,7 @@ function handleNavigation() {
 // ── Timer State ────────────────────────────────────────
 let isTimerRunning = false;
 
-function startTimer(seconds) {
+function startTimer(seconds, autoContinue) {
     const timerEl = document.getElementById('rd-timer');
     const continueBtn = document.getElementById('continueBtn');
     if (!timerEl || !continueBtn) return;
@@ -117,6 +117,9 @@ function startTimer(seconds) {
             timerEl.classList.add('hidden');
             continueBtn.style.opacity = '1';
             continueBtn.style.cursor = 'pointer';
+            if (autoContinue) {
+                dismissPause();
+            }
         } else {
             remaining--;
             setTimeout(update, 1000);
@@ -150,14 +153,15 @@ function init() {
     // 4. Load Settings & Start Timer
     chrome.storage.sync.get({
         pauseDuration: 0,
-        pauseUnit: 'seconds'
+        pauseUnit: 'seconds',
+        autoContinue: false
     }, (items) => {
         let seconds = parseInt(items.pauseDuration) || 0;
         if (items.pauseUnit === 'minutes') {
             seconds *= 60;
         }
         if (seconds > 0) {
-            startTimer(seconds);
+            startTimer(seconds, items.autoContinue);
         }
     });
 

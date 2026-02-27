@@ -97,19 +97,20 @@
         // Load Settings & Start Timer
         chrome.storage.sync.get({
             pauseDuration: 0,
-            pauseUnit: 'seconds'
+            pauseUnit: 'seconds',
+            autoContinue: false
         }, (items) => {
             let seconds = parseInt(items.pauseDuration) || 0;
             if (items.pauseUnit === 'minutes') {
                 seconds *= 60;
             }
             if (seconds > 0) {
-                runOverlayTimer(seconds);
+                runOverlayTimer(seconds, items.autoContinue);
             }
         });
     }
 
-    function runOverlayTimer(seconds) {
+    function runOverlayTimer(seconds, autoContinue) {
         const timerEl = document.getElementById('rd-timer-overlay');
         const btn = document.getElementById('rd-continue-btn');
         const hint = document.getElementById('rd-enter-hint');
@@ -130,6 +131,9 @@
                 btn.style.opacity = '1';
                 btn.style.cursor = 'pointer';
                 if (hint) hint.style.opacity = '1';
+                if (autoContinue) {
+                    dismiss();
+                }
             } else {
                 remaining--;
                 setTimeout(update, 1000);
