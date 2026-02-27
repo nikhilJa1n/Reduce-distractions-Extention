@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const pauseTimeInput = document.getElementById('pauseTime');
     const pauseUnitSelect = document.getElementById('pauseUnit');
     const autoContinueCheck = document.getElementById('autoContinue');
+    const autoPauseTimeInput = document.getElementById('autoPauseTime');
+    const autoPauseUnitSelect = document.getElementById('autoPauseUnit');
     const filterModeSelect = document.getElementById('filterMode');
     const siteListTextarea = document.getElementById('siteList');
     const siteListContainer = document.getElementById('siteListContainer');
@@ -63,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         pauseDuration: 0,
         pauseUnit: 'seconds',
         autoContinue: false,
+        autoPauseDuration: 0,
+        autoPauseUnit: 'minutes',
         filterMode: 'always',
         siteList: '',
         accentColor: '#a78bfa',
@@ -72,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
         pauseTimeInput.value = items.pauseDuration;
         pauseUnitSelect.value = items.pauseUnit;
         autoContinueCheck.checked = items.autoContinue;
+        autoPauseTimeInput.value = items.autoPauseDuration;
+        autoPauseUnitSelect.value = items.autoPauseUnit;
         filterModeSelect.value = items.filterMode;
         siteListTextarea.value = items.siteList;
         selectedColor = items.accentColor;
@@ -100,6 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const duration = parseInt(pauseTimeInput.value) || 0;
         const unit = pauseUnitSelect.value;
         const autoContinue = autoContinueCheck.checked;
+        const autoPauseDuration = parseInt(autoPauseTimeInput.value) || 0;
+        const autoPauseUnit = autoPauseUnitSelect.value;
         const filterMode = filterModeSelect.value;
         const siteList = siteListTextarea.value;
 
@@ -107,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
             pauseDuration: duration,
             pauseUnit: unit,
             autoContinue: autoContinue,
+            autoPauseDuration: autoPauseDuration,
+            autoPauseUnit: autoPauseUnit,
             filterMode: filterMode,
             siteList: siteList,
             accentColor: selectedColor

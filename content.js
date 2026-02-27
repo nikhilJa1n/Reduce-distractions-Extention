@@ -2,17 +2,7 @@
     // Don't run in iframes
     if (window.self !== window.top) return;
 
-    // Trigger on:
-    //   1. Reload/refresh
-    //   2. Direct address-bar navigation (navigate type + no referrer)
-    //      — this catches typing youtube.com, etc., but NOT link clicks within a page
-    const navEntries = performance.getEntriesByType('navigation');
-    if (!navEntries.length) return;
-
-    const navType = navEntries[0].type;
-    const isReload = navType === 'reload';
-    const isDirectNav = navType === 'navigate' && !document.referrer;
-    if (!isReload && !isDirectNav) return;
+    let autoPauseTimer = null;
 
     const QUOTES = [
         { text: "Almost everything will work again if you unplug it for a few minutes — including you.", author: "Anne Lamott" },
@@ -32,16 +22,9 @@
         { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
     ];
 
-    // Check filters before injecting
-    chrome.storage.sync.get({
-        filterMode: 'always',
-        siteList: ''
-    }, (items) => {
+    function checkSiteMatch(items) {
         const mode = items.filterMode;
-        if (mode === 'always') {
-            initOverlay();
-            return;
-        }
+        if (mode === 'always') return true;
 
         const currentHost = window.location.hostname;
         const list = items.siteList.split('\n')
@@ -49,14 +32,60 @@
             .filter(s => s.length > 0);
 
         const isMatched = list.some(domain => {
-            // Simple match: domain exactly or ends with .domain
             return currentHost === domain || currentHost.endsWith('.' + domain);
         });
 
-        if (mode === 'blacklist' && isMatched) {
-            initOverlay();
-        } else if (mode === 'whitelist' && !isMatched) {
-            initOverlay();
+        if (mode === 'blacklist' && isMatched) return true;
+        if (mode === 'whitelist' && !isMatched) return true;
+        return false;
+    }
+
+    function startAutoPauseTimer() {
+        if (autoPauseTimer) clearTimeout(autoPauseTimer);
+
+        chrome.storage.sync.get({
+            autoPauseDuration: 0,
+            autoPauseUnit: 'minutes'
+        }, (items) => {
+            let seconds = parseInt(items.autoPauseDuration) || 0;
+            if (items.autoPauseUnit === 'hours') {
+                seconds *= 3600;
+            } else {
+                seconds *= 60;
+            }
+
+            if (seconds > 0) {
+                autoPauseTimer = setTimeout(() => {
+                    // Check if overlay is already active
+                    if (!document.getElementById('rd-pause-overlay')) {
+                        initOverlay();
+                    }
+                }, seconds * 1000);
+            }
+        });
+    }
+
+    // Check filters and trigger initial overlay or start timer
+    chrome.storage.sync.get({
+        filterMode: 'always',
+        siteList: ''
+    }, (items) => {
+        if (checkSiteMatch(items)) {
+            const navEntries = performance.getEntriesByType('navigation');
+            if (navEntries.length) {
+                const navType = navEntries[0].type;
+                const isReload = navType === 'reload';
+                const isDirectNav = navType === 'navigate' && !document.referrer;
+
+                if (isReload || isDirectNav) {
+                    initOverlay();
+                } else {
+                    // Not a direct nav/reload, but it's a distracting site, start timer
+                    startAutoPauseTimer();
+                }
+            } else {
+                startAutoPauseTimer();
+            }
         }
     });
 
@@ -147,6 +176,8 @@
             document.documentElement.style.overflow = '';
             setTimeout(() => {
                 if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                // Restart auto-pause timer on dismissal
+                startAutoPauseTimer();
             }, 420);
         }
 
