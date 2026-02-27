@@ -33,12 +33,15 @@
       Take a breath before continuing.
     </div>
 
+    <div id="rd-timer-overlay" class="rd-timer-overlay rd-hidden">Wait 5s to continue</div>
     <button id="rd-continue-btn">Continue →</button>
-    <p class="rd-hint">or press Enter</p>
+    <p class="rd-hint" id="rd-enter-hint">or press Enter</p>
   `;
 
     // Block scrolling while overlay is visible
     document.documentElement.style.overflow = 'hidden';
+
+    let isTimerRunning = false;
 
     // Append as early as possible; if body not ready yet, wait for it
     function attachOverlay() {
@@ -69,6 +72,7 @@
 
     // Dismiss function
     function dismiss() {
+        if (isTimerRunning) return;
         clearInterval(labelTimer);
         overlay.style.transition = 'opacity 0.4s ease';
         overlay.style.opacity = '0';
@@ -84,10 +88,54 @@
         if (btn) btn.addEventListener('click', dismiss);
         document.addEventListener('keydown', function onKey(e) {
             if (e.key === 'Enter' || e.key === 'Escape') {
+                if (isTimerRunning) return;
                 document.removeEventListener('keydown', onKey);
                 dismiss();
             }
         });
+
+        // Load Settings & Start Timer
+        chrome.storage.sync.get({
+            pauseDuration: 0,
+            pauseUnit: 'seconds'
+        }, (items) => {
+            let seconds = parseInt(items.pauseDuration) || 0;
+            if (items.pauseUnit === 'minutes') {
+                seconds *= 60;
+            }
+            if (seconds > 0) {
+                runOverlayTimer(seconds);
+            }
+        });
+    }
+
+    function runOverlayTimer(seconds) {
+        const timerEl = document.getElementById('rd-timer-overlay');
+        const btn = document.getElementById('rd-continue-btn');
+        const hint = document.getElementById('rd-enter-hint');
+        if (!timerEl || !btn) return;
+
+        isTimerRunning = true;
+        timerEl.classList.remove('rd-hidden');
+        btn.style.opacity = '0.3';
+        btn.style.cursor = 'not-allowed';
+        if (hint) hint.style.opacity = '0.3';
+
+        let remaining = seconds;
+        const update = () => {
+            timerEl.textContent = `Wait ${remaining}s to continue`;
+            if (remaining <= 0) {
+                isTimerRunning = false;
+                timerEl.classList.add('rd-hidden');
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                if (hint) hint.style.opacity = '1';
+            } else {
+                remaining--;
+                setTimeout(update, 1000);
+            }
+        };
+        update();
     }
 
     if (document.body) {

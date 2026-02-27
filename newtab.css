@@ -377,6 +377,25 @@ kbd {
   font-size: 11px;
 }
 
+.rd-timer {
+  margin-top: -8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.3px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 /* ─── Utility ─────────────────────────────────────────── */
 .hidden {
   display: none !important;

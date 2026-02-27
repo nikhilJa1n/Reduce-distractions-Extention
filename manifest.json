@@ -3,15 +3,23 @@
   "name": "Reduce Distraction",
   "version": "1.0",
   "description": "Pause before you browse. Shows a mindful pause screen on every new tab and page refresh.",
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["pause_overlay.css"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "pause_overlay.css"
+      ],
       "run_at": "document_start"
     }
   ],
@@ -26,6 +34,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "Reduce Distraction"
+    "default_title": "Reduce Distraction",
+    "default_popup": "popup.html"
   }
 }

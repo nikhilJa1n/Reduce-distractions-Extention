@@ -96,6 +96,35 @@ function handleNavigation() {
     }
 }
 
+// ── Timer State ────────────────────────────────────────
+let isTimerRunning = false;
+
+function startTimer(seconds) {
+    const timerEl = document.getElementById('rd-timer');
+    const continueBtn = document.getElementById('continueBtn');
+    if (!timerEl || !continueBtn) return;
+
+    isTimerRunning = true;
+    timerEl.classList.remove('hidden');
+    continueBtn.style.opacity = '0.5';
+    continueBtn.style.cursor = 'not-allowed';
+
+    let remaining = seconds;
+    const update = () => {
+        timerEl.textContent = `Wait ${remaining}s to continue`;
+        if (remaining <= 0) {
+            isTimerRunning = false;
+            timerEl.classList.add('hidden');
+            continueBtn.style.opacity = '1';
+            continueBtn.style.cursor = 'pointer';
+        } else {
+            remaining--;
+            setTimeout(update, 1000);
+        }
+    };
+    update();
+}
+
 // ── Initialization ─────────────────────────────────────
 function init() {
     // 1. Initial Quote
@@ -118,9 +147,27 @@ function init() {
         setInterval(cycleBreathe, 4000);
     }
 
-    // 4. Event Listeners
+    // 4. Load Settings & Start Timer
+    chrome.storage.sync.get({
+        pauseDuration: 0,
+        pauseUnit: 'seconds'
+    }, (items) => {
+        let seconds = parseInt(items.pauseDuration) || 0;
+        if (items.pauseUnit === 'minutes') {
+            seconds *= 60;
+        }
+        if (seconds > 0) {
+            startTimer(seconds);
+        }
+    });
+
+    // 5. Event Listeners
     const continueBtn = document.getElementById('continueBtn');
-    if (continueBtn) continueBtn.addEventListener('click', dismissPause);
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            if (!isTimerRunning) dismissPause();
+        });
+    }
 
     const goBtn = document.getElementById('rd-go-btn');
     if (goBtn) goBtn.addEventListener('click', handleNavigation);
@@ -135,7 +182,7 @@ function init() {
     document.addEventListener('keydown', (e) => {
         const container = document.querySelector('.container');
         if (container && !container.classList.contains('hidden')) {
-            if (e.key === 'Enter') dismissPause();
+            if (e.key === 'Enter' && !isTimerRunning) dismissPause();
         }
     });
 }
