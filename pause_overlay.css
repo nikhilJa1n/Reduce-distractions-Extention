@@ -1,0 +1,161 @@
+/* Pause overlay injected on page refresh — injected by content.js */
+
+#rd-pause-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483647 !important;
+    background: #0a0a14 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    gap: 36px !important;
+    font-family: 'Inter', 'Helvetica Neue', sans-serif !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    overflow: hidden !important;
+    animation: rdFadeIn 0.5s ease forwards !important;
+}
+
+@keyframes rdFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+#rd-pause-overlay .rd-orb {
+    position: absolute !important;
+    border-radius: 50% !important;
+    filter: blur(80px) !important;
+    opacity: 0.25 !important;
+    pointer-events: none !important;
+}
+
+#rd-pause-overlay .rd-orb1 {
+    width: 500px !important;
+    height: 500px !important;
+    background: radial-gradient(circle, #7c3aed, transparent 70%) !important;
+    top: -150px !important;
+    left: -120px !important;
+}
+
+#rd-pause-overlay .rd-orb2 {
+    width: 380px !important;
+    height: 380px !important;
+    background: radial-gradient(circle, #2563eb, transparent 70%) !important;
+    bottom: -80px !important;
+    right: -60px !important;
+}
+
+#rd-pause-overlay .rd-breath-wrap {
+    position: relative !important;
+    width: 140px !important;
+    height: 140px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#rd-pause-overlay .rd-ring {
+    position: absolute !important;
+    border-radius: 50% !important;
+    border: 1.5px solid rgba(167, 139, 250, 0.35) !important;
+    animation: rdBreathe 4s ease-in-out infinite alternate !important;
+}
+
+#rd-pause-overlay .rd-ring1 {
+    width: 140px !important;
+    height: 140px !important;
+}
+
+#rd-pause-overlay .rd-ring2 {
+    width: 112px !important;
+    height: 112px !important;
+    animation-delay: 0.3s !important;
+}
+
+#rd-pause-overlay .rd-circle {
+    width: 84px !important;
+    height: 84px !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle at 35% 35%, rgba(139, 92, 246, 0.9), rgba(109, 40, 217, 0.7)) !important;
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    animation: rdBreatheInner 4s ease-in-out infinite alternate !important;
+    font-size: 9px !important;
+    font-weight: 500 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+@keyframes rdBreathe {
+    0% {
+        transform: scale(0.88) !important;
+    }
+
+    100% {
+        transform: scale(1.12) !important;
+    }
+}
+
+@keyframes rdBreatheInner {
+    0% {
+        transform: scale(0.9) !important;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3) !important;
+    }
+
+    100% {
+        transform: scale(1.1) !important;
+        box-shadow: 0 0 60px rgba(139, 92, 246, 0.6) !important;
+    }
+}
+
+#rd-pause-overlay .rd-message {
+    text-align: center !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+    letter-spacing: 0.3px !important;
+    line-height: 1.6 !important;
+}
+
+#rd-pause-overlay .rd-message strong {
+    display: block !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    margin-bottom: 6px !important;
+    letter-spacing: -0.3px !important;
+}
+
+#rd-pause-overlay #rd-continue-btn {
+    padding: 13px 34px !important;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(109, 40, 217, 0.8)) !important;
+    border: 1px solid rgba(167, 139, 250, 0.4) !important;
+    border-radius: 50px !important;
+    color: #fff !important;
+    font-family: inherit !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+    letter-spacing: 0.3px !important;
+}
+
+#rd-pause-overlay #rd-continue-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.5) !important;
+}
+
+#rd-pause-overlay .rd-hint {
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+    margin-top: -18px !important;
+}
