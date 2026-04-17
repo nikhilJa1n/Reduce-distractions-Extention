@@ -1,6 +1,7 @@
 (function () {
     // Don't run in iframes
     if (window.self !== window.top) return;
+    if (!/^https?:$/.test(window.location.protocol)) return;
 
     let autoPauseTimer = null;
 
@@ -125,22 +126,72 @@
         document.documentElement.style.overflow = 'hidden';
 
         let isTimerRunning = false;
+        let overlayAttached = false;
+        let isOverlayActive = true;
+        let removeKeyListener = null;
+        let removeMediaBlockers = null;
+
+        function pauseMediaElement(mediaEl) {
+            try {
+                if (!mediaEl.paused) {
+                    mediaEl.pause();
+                }
+            } catch (e) { }
+        }
+
+        function installMediaBlockers() {
+            const mediaSelector = 'video, audio';
+
+            const stopMediaPlayback = (event) => {
+                if (!isOverlayActive) return;
+                pauseMediaElement(event.target);
+            };
+
+            const observer = new MutationObserver((mutations) => {
+                if (!isOverlayActive) return;
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (!(node instanceof Element)) return;
+
+                        if (node.matches(mediaSelector)) {
+                            pauseMediaElement(node);
+                        }
+
+                        node.querySelectorAll?.(mediaSelector).forEach(pauseMediaElement);
+                    });
+                });
+            });
+
+            document.querySelectorAll(mediaSelector).forEach(pauseMediaElement);
+            document.addEventListener('play', stopMediaPlayback, true);
+            document.addEventListener('playing', stopMediaPlayback, true);
+            observer.observe(document.documentElement, {
+                childList: true,
+                subtree: true
+            });
+
+            return () => {
+                document.removeEventListener('play', stopMediaPlayback, true);
+                document.removeEventListener('playing', stopMediaPlayback, true);
+                observer.disconnect();
+            };
+        }
 
         // Append as early as possible; if body not ready yet, wait for it
         function attachOverlay() {
-            if (document.body) {
-                document.body.appendChild(overlay);
-                silencePage();
-                window.rdMediaInterval = setInterval(silencePage, 500);
-            } else {
-                document.addEventListener('DOMContentLoaded', () => {
-                    document.body.appendChild(overlay);
-                    silencePage();
-                    window.rdMediaInterval = setInterval(silencePage, 500);
-                });
-            }
+            if (overlayAttached) return;
+            if (!document.body) return;
+
+            document.body.appendChild(overlay);
+            overlayAttached = true;
+            removeMediaBlockers = installMediaBlockers();
         }
-        attachOverlay();
+
+        if (document.body) {
+            attachOverlay();
+        } else {
+            document.addEventListener('DOMContentLoaded', attachOverlay, { once: true });
+        }
 
         // Breathing label cycle
         const breathLabels = ['Breathe In', 'Hold', 'Breathe Out', 'Hold'];
@@ -157,19 +208,19 @@
             }, 300);
         }, 4000);
 
-        function silencePage() {
-            const media = document.querySelectorAll('video, audio');
-            media.forEach(m => {
-                try {
-                    if (!m.paused) m.pause();
-                } catch (e) { }
-            });
-        }
-
         // Dismiss function
         function dismiss() {
             if (isTimerRunning) return;
-            if (window.rdMediaInterval) clearInterval(window.rdMediaInterval);
+
+            isOverlayActive = false;
+            if (removeMediaBlockers) {
+                removeMediaBlockers();
+                removeMediaBlockers = null;
+            }
+            if (removeKeyListener) {
+                removeKeyListener();
+                removeKeyListener = null;
+            }
             clearInterval(labelTimer);
             overlay.style.transition = 'opacity 0.4s ease';
             overlay.style.opacity = '0';
@@ -185,13 +236,18 @@
         function bindEvents() {
             const btn = document.getElementById('rd-continue-btn');
             if (btn) btn.addEventListener('click', dismiss);
-            document.addEventListener('keydown', function onKey(e) {
+
+            const onKey = (e) => {
                 if (e.key === 'Enter' || e.key === 'Escape') {
                     if (isTimerRunning) return;
-                    document.removeEventListener('keydown', onKey);
                     dismiss();
                 }
-            });
+            };
+
+            document.addEventListener('keydown', onKey);
+            removeKeyListener = () => {
+                document.removeEventListener('keydown', onKey);
+            };
 
             // Load Settings & Start Timer
             chrome.storage.sync.get({
