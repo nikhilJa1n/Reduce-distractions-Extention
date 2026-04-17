@@ -279,8 +279,7 @@
 
             isTimerRunning = true;
             timerEl.classList.remove('rd-hidden');
-            btn.style.opacity = '0.3';
-            btn.style.cursor = 'not-allowed';
+            btn.disabled = true;
             if (hint) hint.style.opacity = '0.3';
 
             let remaining = seconds;
@@ -289,8 +288,7 @@
                 if (remaining <= 0) {
                     isTimerRunning = false;
                     timerEl.classList.add('rd-hidden');
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
+                    btn.disabled = false;
                     if (hint) hint.style.opacity = '1';
 
                     // Increment mindful moments on success

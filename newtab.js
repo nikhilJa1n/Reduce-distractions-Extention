@@ -106,8 +106,7 @@ function startTimer(seconds, autoContinue) {
 
     isTimerRunning = true;
     timerEl.classList.remove('hidden');
-    continueBtn.style.opacity = '0.5';
-    continueBtn.style.cursor = 'not-allowed';
+    continueBtn.disabled = true;
 
     let remaining = seconds;
     const update = () => {
@@ -115,8 +114,7 @@ function startTimer(seconds, autoContinue) {
         if (remaining <= 0) {
             isTimerRunning = false;
             timerEl.classList.add('hidden');
-            continueBtn.style.opacity = '1';
-            continueBtn.style.cursor = 'pointer';
+            continueBtn.disabled = false;
 
             // Increment mindful moments on success
             chrome.storage.sync.get({ totalMoments: 0 }, (data) => {

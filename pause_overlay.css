@@ -151,9 +151,21 @@
     letter-spacing: 0.3px !important;
 }
 
+#rd-pause-overlay #rd-continue-btn:disabled {
+    opacity: 0.35 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+}
+
 #rd-pause-overlay #rd-continue-btn:hover {
     transform: translateY(-2px) !important;
     box-shadow: 0 8px 32px var(--rd-accent) !important;
+}
+
+#rd-pause-overlay #rd-continue-btn:disabled:hover {
+    transform: none !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
 }
 
 #rd-pause-overlay .rd-hint {

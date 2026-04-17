@@ -344,6 +344,15 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+.continue-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
 .continue-btn:hover {
   transform: translateY(-2px);
   box-shadow:
@@ -351,6 +360,11 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   background: var(--accent);
   opacity: 1;
+}
+
+.continue-btn:disabled:hover {
+  opacity: 0.45;
+  background: var(--accent);
 }
 
 .continue-btn:active {
@@ -364,6 +378,10 @@ body {
 
 .continue-btn:hover .btn-arrow {
   transform: translateX(4px);
+}
+
+.continue-btn:disabled .btn-arrow {
+  transform: none;
 }
 
 .shortcut-hint {
